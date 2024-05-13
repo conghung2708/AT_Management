@@ -53,7 +53,11 @@ builder.Services.AddDbContext<ATDbContext>(options =>
 // Adding UnitOfWork
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 // Adding AutoMapper
-builder.Services.AddAutoMapper(typeof(AutoMapperProfiles));
+builder.Services.AddAutoMapper(cfg =>
+{
+    cfg.AllowNullCollections = true;
+    cfg.AllowNullDestinationValues = true;
+}, typeof(AutoMapperProfiles));
 
 builder.Services.AddIdentityCore<ApplicationUser>()
     .AddRoles<IdentityRole>()

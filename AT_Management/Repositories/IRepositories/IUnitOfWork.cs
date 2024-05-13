@@ -6,6 +6,6 @@
         IApplicationUserRepository ApplicationUserRepository { get; }
         IPositionRepository PositionRepository { get; }
         IFormRepository FormRepository { get; }
-        void Save();
+        Task SaveAsync();
     }
 }

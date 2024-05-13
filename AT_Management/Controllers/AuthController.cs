@@ -36,7 +36,7 @@ namespace AT_Management.Controllers
             };
 
             // Fetch the position from the repository
-            var position = _unitOfWork.PositionRepository.Get(u => u.Id == registerRequestDTO.PosId);
+            var position = _unitOfWork.PositionRepository.GetAsync(u => u.Id == registerRequestDTO.PosId);
 
             if (position == null)
             {
@@ -45,7 +45,7 @@ namespace AT_Management.Controllers
             }
 
             // Assign salary to the user based on the fetched position
-            user.Salary = position.BasicSalary;
+            user.Salary = position.Result.BasicSalary;
 
             var identityResult = await _userManager.CreateAsync(user, registerRequestDTO.Password);
 

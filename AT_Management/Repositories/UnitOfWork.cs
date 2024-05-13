@@ -26,9 +26,9 @@ namespace AT_Management.Repositories
             FormRepository = new FormRepository(_aTDbContext);
         }
 
-        public void Save()
+        public async Task SaveAsync()
         {
-            _aTDbContext.SaveChanges();
+            await _aTDbContext.SaveChangesAsync();
         }
 
     }

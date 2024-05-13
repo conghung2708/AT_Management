@@ -1,40 +1,35 @@
-﻿using Microsoft.EntityFrameworkCore;
-using System.Linq.Expressions;
-using System.Linq;
-using AT_Management.Data;
+﻿using AT_Management.Data;
 using AT_Management.Repositories.IRepositories;
+using Microsoft.EntityFrameworkCore;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Linq.Expressions;
+using System.Threading.Tasks;
 
 namespace AT_Management.Repositories
 {
     public class Repository<T> : IRepository<T> where T : class
     {
-        //2
         private readonly ATDbContext _db;
         internal DbSet<T> dbSet;
+
         public Repository(ATDbContext db)
         {
             _db = db;
-            //the table = dbSet
-            this.dbSet = _db.Set<T>();
-            //include here
-           
+            dbSet = _db.Set<T>();
         }
-        public void Add(T entity)
+
+        public async Task AddAsync(T entity)
         {
-            dbSet.Add(entity);
+            await dbSet.AddAsync(entity);
         }
-        public T Get(Expression<Func<T, bool>> filter, string? includeProperties = null, bool tracked = false)
+
+        public async Task<T> GetAsync(Expression<Func<T, bool>> filter, string includeProperties = null, bool tracked = false)
         {
-            IQueryable<T> query;
-            if (tracked == true)
-            {
-                query = dbSet;
-            }
-            else
-            {
-                query = dbSet.AsNoTracking();
-            }
+            IQueryable<T> query = tracked ? dbSet : dbSet.AsNoTracking();
             query = query.Where(filter);
+
             if (!string.IsNullOrEmpty(includeProperties))
             {
                 foreach (var includeProp in includeProperties.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries))
@@ -42,17 +37,19 @@ namespace AT_Management.Repositories
                     query = query.Include(includeProp);
                 }
             }
-            return query.FirstOrDefault();
 
+            return await query.FirstOrDefaultAsync();
         }
-        public IEnumerable<T> GetAll(Expression<Func<T, bool>>? filter = null, string? includeProperties = null)
+
+        public async Task<IEnumerable<T>> GetAllAsync(Expression<Func<T, bool>> filter = null, string includeProperties = null)
         {
             IQueryable<T> query = dbSet;
+
             if (filter != null)
             {
                 query = query.Where(filter);
-
             }
+
             if (!string.IsNullOrEmpty(includeProperties))
             {
                 foreach (var includeProp in includeProperties.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries))
@@ -60,17 +57,20 @@ namespace AT_Management.Repositories
                     query = query.Include(includeProp);
                 }
             }
-            return query.ToList();
+
+            return await query.ToListAsync();
         }
 
-        public void Remove(T entity)
+        public async Task RemoveAsync(T entity)
         {
             dbSet.Remove(entity);
+            await _db.SaveChangesAsync();
         }
 
-        public void RemoveRange(IEnumerable<T> entity)
+        public async Task RemoveRangeAsync(IEnumerable<T> entities)
         {
-            dbSet.RemoveRange(entity);
+            dbSet.RemoveRange(entities);
+            await _db.SaveChangesAsync();
         }
     }
 }
