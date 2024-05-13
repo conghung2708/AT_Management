@@ -1,15 +1,21 @@
-﻿using Microsoft.AspNetCore.Identity;
+﻿using AT_Management.Models.Domain;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
-
+using System.Reflection.Emit;
 namespace AT_Management.Data
 {
-    public class ATDbContext : IdentityDbContext<IdentityUser>
+    public class ATDbContext : IdentityDbContext<ApplicationUser>
     {
         public ATDbContext(DbContextOptions<ATDbContext> options) : base(options)
         {
             
         }
+        
+
+        public DbSet<ApplicationUser> ApplicationUsers { get; set; }
+        public DbSet<Position> Position { get; set; }
+        public DbSet<Form> Form { get; set; }
 
         protected override void OnModelCreating(ModelBuilder builder)
         {

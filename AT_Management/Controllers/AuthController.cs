@@ -1,4 +1,6 @@
-﻿using AT_Management.Models.DTO;
+﻿using AT_Management.CustomActionFilters;
+using AT_Management.Models.Domain;
+using AT_Management.Models.DTO;
 using AT_Management.Repositories;
 using AT_Management.Repositories.IRepositories;
 using Microsoft.AspNetCore.Http;
@@ -11,42 +13,61 @@ namespace AT_Management.Controllers
     [ApiController]
     public class AuthController : ControllerBase
     {
-        private readonly UserManager<IdentityUser> _userManager;
+        private readonly UserManager<ApplicationUser> _userManager;
         private readonly IUnitOfWork _unitOfWork;
-        public AuthController(UserManager<IdentityUser> userManager, IUnitOfWork unitOfWork)
+        public AuthController(UserManager<ApplicationUser> userManager, IUnitOfWork unitOfWork)
         {
             _userManager = userManager;
             _unitOfWork = unitOfWork;
         }
 
-        //Regiser
         [HttpPost]
         [Route("Register")]
+        [ValidateModel]
         public async Task<IActionResult> Register([FromBody] RegisterRequestDTO registerRequestDTO)
         {
-            var identityUser = new IdentityUser
+            var user = new ApplicationUser
             {
                 UserName = registerRequestDTO.Username,
-                Email = registerRequestDTO.Username
+                Email = registerRequestDTO.Username,
+                PhoneNumber = registerRequestDTO.PhoneNumber,
+                FullName = registerRequestDTO.FullName,
+                PosId = registerRequestDTO.PosId
             };
 
-            var identityResult = await _userManager.CreateAsync(identityUser, registerRequestDTO.Password);
+            // Fetch the position from the repository
+            var position = _unitOfWork.PositionRepository.Get(u => u.Id == registerRequestDTO.PosId);
+
+            if (position == null)
+            {
+                // Handle the case where the position is not found
+                return BadRequest("Invalid position ID.");
+            }
+
+            // Assign salary to the user based on the fetched position
+            user.Salary = position.BasicSalary;
+
+            var identityResult = await _userManager.CreateAsync(user, registerRequestDTO.Password);
 
             if (identityResult.Succeeded)
             {
-                //Add roles to this User
+                // Add roles to this User
                 if (registerRequestDTO.Roles != null && registerRequestDTO.Roles.Any())
                 {
-                    identityResult = await _userManager.AddToRolesAsync(identityUser, registerRequestDTO.Roles);
+                    identityResult = await _userManager.AddToRolesAsync(user, registerRequestDTO.Roles);
 
                     if (identityResult.Succeeded)
                     {
-                        return Ok("User was registered ! Please login");
+                        return Ok("User was registered! Please login.");
                     }
                 }
             }
-            return BadRequest("Something was wrong");
+
+            // If registration fails for any reason, return BadRequest
+            return BadRequest("Failed to register user.");
         }
+
+
 
         //Login
         [HttpPost]

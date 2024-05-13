@@ -5,8 +5,11 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
+using System.Collections.Generic;
 using System.Text;
 using Microsoft.OpenApi.Models;
+using AT_Management.Mappings;
+using AT_Management.Models.Domain;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -45,14 +48,16 @@ builder.Services.AddSwaggerGen(options =>
 });
 
 builder.Services.AddDbContext<ATDbContext>(options =>
-options.UseSqlServer(builder.Configuration.GetConnectionString("ATConnectionString")));
+    options.UseSqlServer(builder.Configuration.GetConnectionString("ATConnectionString")));
 
-//adding UnitOfWork
+// Adding UnitOfWork
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
+// Adding AutoMapper
+builder.Services.AddAutoMapper(typeof(AutoMapperProfiles));
 
-builder.Services.AddIdentityCore<IdentityUser>()
+builder.Services.AddIdentityCore<ApplicationUser>()
     .AddRoles<IdentityRole>()
-    .AddTokenProvider<DataProtectorTokenProvider<IdentityUser>>("AT")
+    .AddTokenProvider<DataProtectorTokenProvider<ApplicationUser>>("AT")
     .AddEntityFrameworkStores<ATDbContext>()
     .AddDefaultTokenProviders();
 
