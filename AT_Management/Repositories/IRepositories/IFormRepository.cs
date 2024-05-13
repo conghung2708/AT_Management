@@ -4,6 +4,6 @@ namespace AT_Management.Repositories.IRepositories
 {
     public interface IFormRepository : IRepository<Form>
     {
-        void Update(Form form);
+        Task UpdateAsync(Form form);
     }
 }

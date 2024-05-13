@@ -1,6 +1,7 @@
 ﻿using AT_Management.Data;
 using AT_Management.Models.Domain;
 using AT_Management.Repositories.IRepositories;
+using Microsoft.EntityFrameworkCore;
 
 namespace AT_Management.Repositories
 {
@@ -12,13 +13,15 @@ namespace AT_Management.Repositories
         {
             _aTDbContext = aTDbContext;
         }
-        public void Update(Position position)
+        public async Task UpdateAsync(Position position)
         {
-           var positionFromDb = _aTDbContext.Position.FirstOrDefault(u => u.Id == position.Id);
-            if(positionFromDb != null)
+            var positionFromDb = await _aTDbContext.Position.FirstOrDefaultAsync(u => u.Id == position.Id);
+            if (positionFromDb != null)
             {
                 positionFromDb.Name = position.Name;
                 positionFromDb.BasicSalary = position.BasicSalary;
+
+                await _aTDbContext.SaveChangesAsync();
             }
         }
     }
