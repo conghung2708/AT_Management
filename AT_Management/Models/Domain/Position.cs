@@ -6,7 +6,7 @@ namespace AT_Management.Models.Domain
     {
 
         [Key]
-        public Guid PosId { get; set; }
+        public Guid Id { get; set; }
         public string Name { get; set; }
         public decimal BasicSalary { get; set; }
     }
