@@ -1,4 +1,5 @@
-﻿using AT_Management.Models.DTO;
+﻿using AT_Management.Models.Domain;
+using AT_Management.Models.DTO;
 using AT_Management.Repositories;
 using AT_Management.Repositories.IRepositories;
 using Microsoft.AspNetCore.Http;
@@ -11,9 +12,9 @@ namespace AT_Management.Controllers
     [ApiController]
     public class AuthController : ControllerBase
     {
-        private readonly UserManager<IdentityUser> _userManager;
+        private readonly UserManager<ApplicationUser> _userManager;
         private readonly IUnitOfWork _unitOfWork;
-        public AuthController(UserManager<IdentityUser> userManager, IUnitOfWork unitOfWork)
+        public AuthController(UserManager<ApplicationUser> userManager, IUnitOfWork unitOfWork)
         {
             _userManager = userManager;
             _unitOfWork = unitOfWork;
@@ -24,27 +25,34 @@ namespace AT_Management.Controllers
         [Route("Register")]
         public async Task<IActionResult> Register([FromBody] RegisterRequestDTO registerRequestDTO)
         {
-            var identityUser = new IdentityUser
+            if(ModelState.IsValid)
             {
-                UserName = registerRequestDTO.Username,
-                Email = registerRequestDTO.Username
-            };
-
-            var identityResult = await _userManager.CreateAsync(identityUser, registerRequestDTO.Password);
-
-            if (identityResult.Succeeded)
-            {
-                //Add roles to this User
-                if (registerRequestDTO.Roles != null && registerRequestDTO.Roles.Any())
+                var user = new ApplicationUser
                 {
-                    identityResult = await _userManager.AddToRolesAsync(identityUser, registerRequestDTO.Roles);
+                    UserName = registerRequestDTO.Username,
+                    Email = registerRequestDTO.Username,
+                    PhoneNumber = registerRequestDTO.PhoneNumber,
+                    FullName = registerRequestDTO.FullName,
+                    PosId = registerRequestDTO.PosId
+                };
 
-                    if (identityResult.Succeeded)
+                var identityResult = await _userManager.CreateAsync(user, registerRequestDTO.Password);
+
+                if (identityResult.Succeeded)
+                {
+                    //Add roles to this User
+                    if (registerRequestDTO.Roles != null && registerRequestDTO.Roles.Any())
                     {
-                        return Ok("User was registered ! Please login");
+                        identityResult = await _userManager.AddToRolesAsync(user, registerRequestDTO.Roles);
+
+                        if (identityResult.Succeeded)
+                        {
+                            return Ok("User was registered ! Please login");
+                        }
                     }
                 }
             }
+           
             return BadRequest("Something was wrong");
         }
 
