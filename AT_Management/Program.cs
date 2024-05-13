@@ -7,6 +7,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using Microsoft.OpenApi.Models;
+using AT_Management.Mappings;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -49,6 +50,8 @@ options.UseSqlServer(builder.Configuration.GetConnectionString("ATConnectionStri
 
 //adding UnitOfWork
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
+//adding automapper
+builder.Services.AddAutoMapper(typeof(AutoMapperProfiles));
 
 builder.Services.AddIdentityCore<IdentityUser>()
     .AddRoles<IdentityRole>()
