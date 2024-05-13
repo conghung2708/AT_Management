@@ -1,4 +1,6 @@
 ﻿using AT_Management.Models.DTO;
+using AT_Management.Repositories;
+using AT_Management.Repositories.IRepositories;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -10,10 +12,11 @@ namespace AT_Management.Controllers
     public class AuthController : ControllerBase
     {
         private readonly UserManager<IdentityUser> _userManager;
-
-        public AuthController(UserManager<IdentityUser> userManager)
+        private readonly IUnitOfWork _unitOfWork;
+        public AuthController(UserManager<IdentityUser> userManager, IUnitOfWork unitOfWork)
         {
             _userManager = userManager;
+            _unitOfWork = unitOfWork;
         }
 
         //Regiser
@@ -56,7 +59,23 @@ namespace AT_Management.Controllers
             if (user != null)
             {
                 var checkPasswordResult = await _userManager.CheckPasswordAsync(user, loginRequestDTO.Password);
-                return Ok(checkPasswordResult);
+                if (checkPasswordResult)
+                {
+                    //Get roles for this user
+                    var roles = await _userManager.GetRolesAsync(user);
+
+                    if (roles != null)
+                    {
+                        //CREATE TOKEN
+                        var jwtToken = _unitOfWork.TokenRepository.CreateJWTToken(user, roles.ToList());
+
+                        var response = new LoginResponseDTO
+                        {
+                            JwtToken = jwtToken
+                        };
+                        return Ok(response);
+                    }
+                }
             }
             return BadRequest("Username or password incorrect");
         }

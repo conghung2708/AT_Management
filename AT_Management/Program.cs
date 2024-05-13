@@ -1,4 +1,6 @@
 using AT_Management.Data;
+using AT_Management.Repositories.IRepositories;
+using AT_Management.Repositories;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -16,6 +18,9 @@ builder.Services.AddSwaggerGen();
 
 builder.Services.AddDbContext<ATDbContext>(options =>
 options.UseSqlServer(builder.Configuration.GetConnectionString("ATConnectionString")));
+
+//adding UnitOfWork
+builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 
 builder.Services.AddIdentityCore<IdentityUser>()
     .AddRoles<IdentityRole>()
