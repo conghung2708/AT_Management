@@ -4,6 +4,6 @@ namespace AT_Management.Repositories.IRepositories
 {
     public interface IPositionRepository : IRepository<Position>
     {
-        Task UpdateAsync(Position position);
+        Task<Position> UpdateAsync(Guid id, Position position);
     }
 }
