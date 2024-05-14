@@ -22,7 +22,7 @@ namespace AT_Management.Repositories
             if (formFromDb != null)
             {
                 formFromDb.Description = form.Description;
-                formFromDb.Type = form.Type;
+                formFromDb.FormTypeId = form.FormTypeId;
 
                 await _aTDbContext.SaveChangesAsync();
             }

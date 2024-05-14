@@ -9,20 +9,23 @@ namespace AT_Management.Repositories
     {
         private readonly ATDbContext _aTDbContext;
 
-        public PositionRepository(ATDbContext aTDbContext) : base(aTDbContext) 
+        public PositionRepository(ATDbContext aTDbContext) : base(aTDbContext)
         {
             _aTDbContext = aTDbContext;
         }
-        public async Task UpdateAsync(Position position)
+        public async Task<Position> UpdateAsync(Guid id, Position position)
         {
-            var positionFromDb = await _aTDbContext.Position.FirstOrDefaultAsync(u => u.Id == position.Id);
-            if (positionFromDb != null)
+            var positionFromDb = await _aTDbContext.Position.FirstOrDefaultAsync(u => u.Id == id);
+            if (positionFromDb == null)
             {
-                positionFromDb.Name = position.Name;
-                positionFromDb.BasicSalary = position.BasicSalary;
-
-                await _aTDbContext.SaveChangesAsync();
+                return null;
             }
+
+            positionFromDb.Name = position.Name;
+            positionFromDb.BasicSalary = position.BasicSalary;
+
+            await _aTDbContext.SaveChangesAsync();
+            return positionFromDb;
         }
     }
 }

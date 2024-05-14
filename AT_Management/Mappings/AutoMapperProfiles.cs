@@ -10,6 +10,9 @@ namespace AT_Management.Mappings
         {
             CreateMap<ApplicationUser, UserDTO>().ReverseMap();
             CreateMap<ApplicationUser, UpdateUserRequestDTO>().ReverseMap();
+            CreateMap<Position, PositionDTO>().ReverseMap();
+            CreateMap<Position, AddPositionRequestDTO>().ReverseMap();
+            CreateMap<Position, UpdatePositionRequestDTO>().ReverseMap();
 
         }
     }
