@@ -13,5 +13,9 @@ namespace AT_Management.Models.Domain
         public Guid FormTypeId { get; set; }
         public FormType FormType { get; set; }
         public string Description { get; set; }
+        
+        public Guid ImageId { get; set; }
+
+        public Image Image { get; set; }
     }
 }

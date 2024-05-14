@@ -16,7 +16,8 @@ namespace AT_Management.Data
         public DbSet<ApplicationUser> ApplicationUsers { get; set; }
         public DbSet<Position> Position { get; set; }
         public DbSet<Form> Form { get; set; }
-        public DbSet<FormType> FormType { get; set; }   
+        public DbSet<FormType> FormType { get; set; }
+        public DbSet<Image> Image { get; set; }
 
         protected override void OnModelCreating(ModelBuilder builder)
         {

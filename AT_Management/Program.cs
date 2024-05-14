@@ -10,12 +10,15 @@ using System.Text;
 using Microsoft.OpenApi.Models;
 using AT_Management.Mappings;
 using AT_Management.Models.Domain;
+using Microsoft.Extensions.FileProviders;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 
 builder.Services.AddControllers();
+//images
+builder.Services.AddHttpContextAccessor();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(options =>
@@ -52,6 +55,9 @@ builder.Services.AddDbContext<ATDbContext>(options =>
 
 // Adding UnitOfWork
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
+builder.Services.AddScoped<IFormRepository, FormRepository>();
+
+builder.Services.AddScoped<IImageRepository, LocalImageRepository>();
 // Adding AutoMapper
 builder.Services.AddAutoMapper(cfg =>
 {
@@ -88,7 +94,11 @@ if (app.Environment.IsDevelopment())
 app.UseHttpsRedirection();
 app.UseAuthentication();
 app.UseAuthorization();
-
+app.UseStaticFiles(new StaticFileOptions
+{
+    FileProvider = new PhysicalFileProvider(Path.Combine(Directory.GetCurrentDirectory(), "Images")),
+    RequestPath = "/Images"
+});
 app.MapControllers();
 
 app.Run();

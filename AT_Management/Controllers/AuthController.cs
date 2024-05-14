@@ -38,9 +38,9 @@ namespace AT_Management.Controllers
             // Fetch the position from the repository
             var position = _unitOfWork.PositionRepository.GetAsync(u => u.Id == registerRequestDTO.PosId);
 
-            if (position == null)
+            if (position.Result == null)
             {
-                // Handle the case where the position is not found
+                
                 return BadRequest("Invalid position ID.");
             }
 
@@ -72,6 +72,7 @@ namespace AT_Management.Controllers
         //Login
         [HttpPost]
         [Route("Login")]
+        [ValidateModel]
         public async Task<IActionResult> Login([FromBody] LoginRequestDTO loginRequestDTO)
         {
 

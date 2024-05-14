@@ -5,10 +5,9 @@ namespace AT_Management.Models.DTO
 {
     public class FormDTO
     {
-        public ApplicationUser User { get; set; }
-        [ForeignKey(nameof(FormType))]
-        public Guid FormTypeId { get; set; }
+        
         public FormType FormType { get; set; }
         public string Description { get; set; }
+      
     }
 }
