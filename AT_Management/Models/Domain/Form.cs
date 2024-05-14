@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace AT_Management.Models.Domain
 {
@@ -8,7 +9,9 @@ namespace AT_Management.Models.Domain
         public Guid FormId { get; set; }
         public string UserId { get; set; }
         public ApplicationUser User { get; set; }
-        public string Type { get; set; }
+        [ForeignKey(nameof(FormType))]
+        public Guid FormTypeId { get; set; }
+        public FormType FormType { get; set; }
         public string Description { get; set; }
     }
 }

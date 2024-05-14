@@ -6,6 +6,7 @@
         IApplicationUserRepository ApplicationUserRepository { get; }
         IPositionRepository PositionRepository { get; }
         IFormRepository FormRepository { get; }
+        IFormTypeRepository FormTypeRepository { get; }
         Task SaveAsync();
     }
 }
