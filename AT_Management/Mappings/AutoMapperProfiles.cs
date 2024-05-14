@@ -13,7 +13,9 @@ namespace AT_Management.Mappings
             CreateMap<Position, PositionDTO>().ReverseMap();
             CreateMap<Position, AddPositionRequestDTO>().ReverseMap();
             CreateMap<Position, UpdatePositionRequestDTO>().ReverseMap();
-
+            CreateMap<FormType, FormTypeDTO>().ReverseMap();
+            CreateMap<FormType, AddFormTypeRequestDTO>().ReverseMap();
+            CreateMap<FormType, UpdateFormTypeRequestDTO>().ReverseMap();
         }
     }
 }

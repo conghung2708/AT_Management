@@ -4,6 +4,6 @@ namespace AT_Management.Repositories.IRepositories
 {
     public interface IFormTypeRepository : IRepository<FormType>
     {
-        Task Update(FormType formType);
+        Task<FormType> Update(Guid id, FormType formType);
     }
 }

@@ -14,14 +14,18 @@ namespace AT_Management.Repositories
             _aTDbContext = aTDbContext;
         }
 
-        public async Task Update(FormType formType)
+        public async Task<FormType> Update(Guid id, FormType formType)
         {
-            var formTypeFromDb = await _aTDbContext.FormType.FirstOrDefaultAsync(u => u.Id == formType.Id);
-            if (formTypeFromDb != null)
+            var formTypeFromDb = await _aTDbContext.FormType.FirstOrDefaultAsync(u => u.Id == id);
+
+            if (formTypeFromDb == null)
             {
-                formTypeFromDb.Name = formTypeFromDb.Name;
-                await _aTDbContext.SaveChangesAsync();
+                return null;
             }
+            formTypeFromDb.Name = formType.Name;
+            await _aTDbContext.SaveChangesAsync();
+
+            return formTypeFromDb;
         }
     }
 }
