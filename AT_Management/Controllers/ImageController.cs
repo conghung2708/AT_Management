@@ -2,6 +2,7 @@
 using AT_Management.Models.Domain;
 using AT_Management.Models.DTO;
 using AT_Management.Repositories.IRepositories;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
@@ -9,6 +10,7 @@ namespace AT_Management.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [Authorize(Roles = "Admin,Employee")]
     public class ImagesController : ControllerBase
     {
         private readonly IImageRepository imageRepository;

@@ -29,6 +29,7 @@ namespace AT_Management.Controllers
 
         //GET ALL
         [HttpGet]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> GetAllUserAsync()
         {
             var userDomainModels = await _unitOfWork.ApplicationUserRepository.GetAllAsync(includeProperties: "Position");
@@ -42,6 +43,7 @@ namespace AT_Management.Controllers
         //Get user by id
         [HttpGet]
         [Route("{id}")]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> GetUserByIdAsync([FromRoute] string id)
         {
             var userDomainModel = await _unitOfWork.ApplicationUserRepository.GetAsync(u => u.Id == id, includeProperties: "Position");
@@ -59,6 +61,7 @@ namespace AT_Management.Controllers
         [HttpPut]
         [Route("{id}")]
         [ValidateModel]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> UpdateUserAsync([FromRoute] string id, UpdateUserRequestDTO updateUserRequestDTO)
         {
             var userDomainModel = _mapper.Map<ApplicationUser>(updateUserRequestDTO);
@@ -79,6 +82,7 @@ namespace AT_Management.Controllers
 
 
         [HttpGet("userinfo")]
+        [Authorize(Roles = "Admin,Employee")]
         [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
         public async Task<IActionResult> GetUserInfo()
         {

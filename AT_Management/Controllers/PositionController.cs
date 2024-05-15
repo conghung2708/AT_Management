@@ -3,6 +3,7 @@ using AT_Management.Models.Domain;
 using AT_Management.Models.DTO;
 using AT_Management.Repositories.IRepositories;
 using AutoMapper;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
@@ -10,6 +11,7 @@ namespace AT_Management.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [Authorize(Roles = "Admin")]
     public class PositionController : ControllerBase
     {
         private readonly IUnitOfWork _unitOfWork;

@@ -25,7 +25,7 @@ namespace AT_Management.Controllers
         }
 
         [HttpPost]
-        [Authorize]
+        [Authorize(Roles = "Employee")]
         [ValidateModel]
         public async Task<IActionResult> CreateForm([FromForm] AddFormRequestDTO addFormRequestDTO)
         {
@@ -49,7 +49,7 @@ namespace AT_Management.Controllers
         }
 
         [HttpGet]
-        [Authorize] 
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> GetAllForms()
         {
             // Retrieve all forms
@@ -59,7 +59,7 @@ namespace AT_Management.Controllers
         }
 
         [HttpDelete("{formId}")]
-        [Authorize] 
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> DeleteForm(Guid formId)
         {
             // Check if the form exists
@@ -76,7 +76,7 @@ namespace AT_Management.Controllers
         }
 
         [HttpGet("{formId}")]
-        [Authorize] 
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> GetFormById(Guid formId)
         {
             // Retrieve the form by its ID
