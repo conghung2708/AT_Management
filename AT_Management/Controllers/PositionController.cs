@@ -3,9 +3,12 @@ using AT_Management.Models.Domain;
 using AT_Management.Models.DTO;
 using AT_Management.Repositories.IRepositories;
 using AutoMapper;
+using Azure;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using System.Net;
+using System.Text.Json;
 
 namespace AT_Management.Controllers
 {
@@ -16,22 +19,52 @@ namespace AT_Management.Controllers
     {
         private readonly IUnitOfWork _unitOfWork;
         private readonly IMapper _mapper;
+        protected APIResponse _response;
+
 
         public PositionController(IUnitOfWork unitOfWork, IMapper mapper)
         {
             _unitOfWork = unitOfWork;
             _mapper = mapper;
+            _response = new APIResponse();
         }
 
         [HttpGet]
-        public async Task<IActionResult> GetAllPositionAsync()
+        public async Task<IActionResult> GetAllPositionAsync([FromQuery] string? search, int pageSize = 10, int pageNumber = 1)
         {
-            var postitionDomainModels = await _unitOfWork.PositionRepository.GetAllAsync();
+            try
+            {
+                IEnumerable<Position> positionDomainModel = await _unitOfWork.PositionRepository.GetAllAsync(
+                    filter: null,
+                    includeProperties: null,
+                    pageSize: pageSize,
+                    pageNumber: pageNumber
+                );
 
-            //Map Domain Model to DTO
-            var positionDTO = _mapper.Map<List<PositionDTO>>(postitionDomainModels);
+                if (!string.IsNullOrEmpty(search))
+                {
+                    search = search.ToLower();
+                    positionDomainModel = positionDomainModel.Where(u => u.Name.ToLower().Contains(search));
+                }
 
-            return Ok(positionDTO);
+                PaginationDTO pagination = new()
+                {
+                    PageNumber = pageNumber,
+                    PageSize = pageSize,
+                    TotalItems = positionDomainModel.Count()
+                };
+
+                Response.Headers.Add("X-Pagination", JsonSerializer.Serialize(pagination));
+                _response.Result = _mapper.Map<List<PositionDTO>>(positionDomainModel);
+                _response.StatusCode = HttpStatusCode.OK;
+                return Ok(_response);
+            }
+            catch (Exception ex)
+            {
+                _response.IsSuccess = false;
+                _response.ErrorMessages = new List<string> { ex.ToString() };
+                return StatusCode(500, _response);
+            }
         }
 
 
