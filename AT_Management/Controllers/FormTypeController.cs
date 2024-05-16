@@ -3,9 +3,12 @@ using AT_Management.Models.Domain;
 using AT_Management.Models.DTO;
 using AT_Management.Repositories.IRepositories;
 using AutoMapper;
+using Azure;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using System.Net;
+using System.Text.Json;
 
 namespace AT_Management.Controllers
 {
@@ -17,24 +20,53 @@ namespace AT_Management.Controllers
 
         private readonly IUnitOfWork _unitOfWork;
         private readonly IMapper _mapper;
+        protected APIResponse _response;
 
         public FormTypeController(IUnitOfWork unitOfWork, IMapper mapper)
         {
             _unitOfWork = unitOfWork;
             _mapper = mapper;
+            _response = new();
         }
+
 
         [HttpGet]
-        public async Task<IActionResult> GetAllFormTypeAsync()
+        public async Task<IActionResult> GetAllFormTypeAsync([FromQuery] string? search, int pageSize = 10, int pageNumber = 1)
         {
-            var formTypeDomainModels = await _unitOfWork.FormTypeRepository.GetAllAsync();
+            try
+            {
+                IEnumerable<FormType> formTypeDomainModels = await _unitOfWork.FormTypeRepository.GetAllAsync(
+                    filter: null,
+                    includeProperties: null,
+                    pageSize: pageSize,
+                    pageNumber: pageNumber
+                );
 
-            //Map Domain Model to DTO
-            var formTypeDTO = _mapper.Map<List<FormTypeDTO>>(formTypeDomainModels);
+                if (!string.IsNullOrEmpty(search))
+                {
+                    search = search.ToLower();
+                    formTypeDomainModels = formTypeDomainModels.Where(u => u.Name.ToLower().Contains(search));
+                }
 
-            return Ok(formTypeDTO);
+                PaginationDTO pagination = new()
+                {
+                    PageNumber = pageNumber,
+                    PageSize = pageSize,
+                    TotalItems = formTypeDomainModels.Count()
+                };
+
+                Response.Headers.Add("X-Pagination", JsonSerializer.Serialize(pagination));
+                _response.Result = _mapper.Map<List<FormTypeDTO>>(formTypeDomainModels);
+                _response.StatusCode = HttpStatusCode.OK;
+                return Ok(_response);
+            }
+            catch (Exception ex)
+            {
+                _response.IsSuccess = false;
+                _response.ErrorMessages = new List<string> { ex.ToString() };
+                return StatusCode(500, _response);
+            }
         }
-
 
         [HttpGet]
         [Route("{id:Guid}")]

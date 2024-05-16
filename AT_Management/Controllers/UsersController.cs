@@ -8,7 +8,9 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using System.Net;
 using System.Security.Claims;
+using System.Text.Json;
 
 namespace AT_Management.Controllers
 {
@@ -18,26 +20,53 @@ namespace AT_Management.Controllers
     {
         private readonly IUnitOfWork _unitOfWork;
         private readonly IMapper _mapper;
-        private readonly UserManager<ApplicationUser> _userManager;
+        private APIResponse _response;
 
-        public UsersController(IUnitOfWork unitOfWork, IMapper mapper, UserManager<ApplicationUser> userManager)
+        public UsersController(IUnitOfWork unitOfWork, IMapper mapper)
         {
             _unitOfWork = unitOfWork;
             _mapper = mapper;
-            _userManager = userManager;
+            _response = new();
         }
 
         //GET ALL
         [HttpGet]
         [Authorize(Roles = "Admin")]
-        public async Task<IActionResult> GetAllUserAsync()
+        public async Task<IActionResult> GetAllUserAsync([FromQuery] string? search, int pageSize = 10, int pageNumber = 1)
         {
-            var userDomainModels = await _unitOfWork.ApplicationUserRepository.GetAllAsync(includeProperties: "Position");
+            try
+            {
+                IEnumerable<ApplicationUser> userDomainModel = await _unitOfWork.ApplicationUserRepository.GetAllAsync(
+                    filter: null,
+                    includeProperties: "Position",
+                    pageSize: pageSize,
+                    pageNumber: pageNumber
+                );
 
-            //Map Domain Model to DTO
-            var userDTOs = _mapper.Map<List<UserDTO>>(userDomainModels);
+                if (!string.IsNullOrEmpty(search))
+                {
+                    search = search.ToLower();
+                    userDomainModel = userDomainModel.Where(u => u.FullName.ToLower().Contains(search));
+                }
 
-            return Ok(userDTOs);
+                PaginationDTO pagination = new()
+                {
+                    PageNumber = pageNumber,
+                    PageSize = pageSize,
+                    TotalItems = userDomainModel.Count()
+                };
+
+                Response.Headers.Add("X-Pagination", JsonSerializer.Serialize(pagination));
+                _response.Result = _mapper.Map<List<UserDTO>>(userDomainModel);
+                _response.StatusCode = HttpStatusCode.OK;
+                return Ok(_response);
+            }
+            catch (Exception ex)
+            {
+                _response.IsSuccess = false;
+                _response.ErrorMessages = new List<string> { ex.ToString() };
+                return StatusCode(500, _response);
+            }
         }
 
         //Get user by id
