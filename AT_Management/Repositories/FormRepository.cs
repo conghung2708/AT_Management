@@ -106,5 +106,15 @@ namespace AT_Management.Repositories
                 await _aTDbContext.SaveChangesAsync();
             }
         }
+
+        public async Task<List<Form>> GetMyFormsAsync(string userId)
+        {
+            return await _aTDbContext.Form
+               .Include(f => f.User) // Include the User entity
+               .Include(f => f.FormType) // Include the FormType entity
+               .Include(f => f.Image) // Include the Image entity
+               .Where(f => f.UserId == userId)
+               .ToListAsync();
+        }
     }
 }

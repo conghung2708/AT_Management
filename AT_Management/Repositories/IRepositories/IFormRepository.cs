@@ -9,5 +9,6 @@ namespace AT_Management.Repositories.IRepositories
         Task<Form> CreateFormAsync(Form form, IFormFile imageFile);
         Task<Form> UpdateFormAsync(Guid id, Form form);
         Task DeleteFormAsync(Guid id);
+        Task<List<Form>> GetMyFormsAsync(string userId);
     }
 }

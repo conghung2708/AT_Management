@@ -90,5 +90,19 @@ namespace AT_Management.Controllers
             return Ok(form);
         }
 
+        [HttpGet("user")]
+        [Authorize(Roles = "Employee")]
+        public async Task<IActionResult> GetMyForms()
+        {
+            // Get the user ID of the currently logged-in user
+            var userId = _httpContextAccessor.HttpContext.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+
+            // Retrieve forms by user ID
+            var forms = await _formRepository.GetMyFormsAsync(userId);
+
+            return Ok(forms);
+        }
+
+
     }
 }
